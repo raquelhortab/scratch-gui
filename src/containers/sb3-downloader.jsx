@@ -21,6 +21,7 @@ import downloadBlob from '../lib/download-blob';
 class SB3Downloader extends React.Component {
     constructor (props) {
         super(props);
+        window.sb3Downloader = this;
         bindAll(this, [
             'downloadProject'
         ]);
