@@ -39,6 +39,9 @@ import cloudManagerHOC from '../lib/cloud-manager-hoc.jsx';
 import GUIComponent from '../components/gui/gui.jsx';
 import {setIsScratchDesktop} from '../lib/isScratchDesktop.js';
 
+const sb3 = require('../../node_modules/scratch-vm/src/serialization/sb3.js');
+const scratchParser = require('../../node_modules/scratch-parser/index.js');
+
 class GUI extends React.Component {
     componentDidMount () {
         setIsScratchDesktop(this.props.isScratchDesktop);
@@ -118,13 +121,31 @@ GUI.propTypes = {
 GUI.defaultProps = {
     isScratchDesktop: false,
     onStorageInit: storageInstance => storageInstance.addOfficialScratchWebStores(),
-    onProjectLoaded: () => {},
+    onProjectLoaded: () => {
+        window.top.postMessage({message: 'scratchReady'}, '*');
+    },
     onUpdateProjectId: () => {},
     onVmInit: (/* vm */) => {}
 };
 
 const mapStateToProps = state => {
     const loadingState = state.scratchGui.projectState.loadingState;
+    window.onmessage = function (e){
+        console.log(e);
+        if (e.data === 'getSerializedScratchBlob') {
+            state.scratchGui.vm.saveProjectSb3().then(content => {
+                const messageData = {
+                    message: 'serializedScratchProject',
+                    blob: content,
+                    serialized: JSON.stringify(sb3.serialize(state.scratchGui.vm.runtime))
+                };
+                window.top.postMessage(messageData, '*');
+            });
+        }
+        if (e.data.message === 'loadScratchProject'){
+            state.scratchGui.vm.loadProject(JSON.parse(e.data.serialized));
+        }
+    };
     return {
         activeTabIndex: state.scratchGui.editorTab.activeTabIndex,
         alertsVisible: state.scratchGui.alerts.visible,
