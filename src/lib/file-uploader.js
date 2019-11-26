@@ -2,6 +2,9 @@ import {BitmapAdapter} from 'scratch-svg-renderer';
 import log from './log.js';
 import randomizeSpritePosition from './randomize-sprite-position.js';
 import gifDecoder from './gif-decoder';
+import {SOUND_BYTE_LIMIT} from "./audio/audio-util";
+
+const FILE_BYTE_LIMIT = SOUND_BYTE_LIMIT;
 
 /**
  * Extract the file name given a string of the form fileName + ext
@@ -34,6 +37,13 @@ const handleFileUpload = function (fileInput, onload, onerror) {
         const file = files[i];
         const reader = new FileReader();
         reader.onload = () => {
+            if (reader.result.byteLength > FILE_BYTE_LIMIT){
+                onerror();
+                log.error(`Refusing to upload file larger than ${FILE_BYTE_LIMIT} bytes`);
+                // eslint-disable-next-line no-alert
+                alert(`Cannot upload a file larger than ${FILE_BYTE_LIMIT} bytes`);
+                return;
+            }
             const fileType = file.type;
             const fileName = extractFileName(file.name);
             onload(reader.result, fileType, fileName, i, files.length);
