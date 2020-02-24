@@ -39,8 +39,7 @@ import cloudManagerHOC from '../lib/cloud-manager-hoc.jsx';
 import GUIComponent from '../components/gui/gui.jsx';
 import {setIsScratchDesktop} from '../lib/isScratchDesktop.js';
 
-const sb3 = require('../../node_modules/scratch-vm/src/serialization/sb3.js');
-const scratchParser = require('../../node_modules/scratch-parser/index.js');
+import sb3 from '../../node_modules/scratch-vm/src/serialization/sb3.js';
 
 class GUI extends React.Component {
     componentDidMount () {
@@ -146,6 +145,8 @@ const mapStateToProps = state => {
             state.scratchGui.vm.loadProject(JSON.parse(e.data.serialized));
         }
     };
+    window.sb3 = sb3;
+    window.vm = state.scratchGui.vm;
     return {
         activeTabIndex: state.scratchGui.editorTab.activeTabIndex,
         alertsVisible: state.scratchGui.alerts.visible,
@@ -207,3 +208,4 @@ const WrappedGui = compose(
 
 WrappedGui.setAppElement = ReactModal.setAppElement;
 export default WrappedGui;
+

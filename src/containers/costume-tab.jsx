@@ -41,6 +41,8 @@ import searchIcon from '../components/action-menu/icon--search.svg';
 import costumeLibraryContent from '../lib/libraries/costumes.json';
 import backdropLibraryContent from '../lib/libraries/backdrops.json';
 
+const COSTUME_BYTE_LIMIT = 3 * 1000 * 1000; // 3mb
+
 let messages = defineMessages({
     addLibraryBackdropMsg: {
         defaultMessage: 'Choose a Backdrop',
@@ -216,7 +218,7 @@ class CostumeTab extends React.Component {
                     }
                 });
             }, this.props.onCloseImporting);
-        }, this.props.onCloseImporting);
+        }, this.props.onCloseImporting, COSTUME_BYTE_LIMIT);
     }
     handleCameraBuffer (buffer) {
         const storage = this.props.vm.runtime.storage;

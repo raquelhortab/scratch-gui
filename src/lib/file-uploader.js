@@ -2,7 +2,7 @@ import {BitmapAdapter} from 'scratch-svg-renderer';
 import log from './log.js';
 import randomizeSpritePosition from './randomize-sprite-position.js';
 import gifDecoder from './gif-decoder';
-import {SOUND_BYTE_LIMIT} from "./audio/audio-util";
+import {SOUND_BYTE_LIMIT} from './audio/audio-util';
 
 const FILE_BYTE_LIMIT = SOUND_BYTE_LIMIT;
 
@@ -25,7 +25,8 @@ const extractFileName = function (nameExt) {
  * @param {Function} onload The function that handles loading the file
  * @param {Function} onerror The function that handles any error loading the file
  */
-const handleFileUpload = function (fileInput, onload, onerror) {
+const handleFileUpload = function (fileInput, onload, onerror, file_byte_limit) {
+    const byteLimit = file_byte_limit ? file_byte_limit : FILE_BYTE_LIMIT;
     const readFile = (i, files) => {
         if (i === files.length) {
             // Reset the file input value now that we have everything we need
@@ -37,11 +38,11 @@ const handleFileUpload = function (fileInput, onload, onerror) {
         const file = files[i];
         const reader = new FileReader();
         reader.onload = () => {
-            if (reader.result.byteLength > FILE_BYTE_LIMIT){
+            if (reader.result.byteLength > byteLimit){
                 onerror();
-                log.error(`Refusing to upload file larger than ${FILE_BYTE_LIMIT} bytes`);
+                log.error(`Refusing to upload file larger than ${byteLimit} bytes`);
                 // eslint-disable-next-line no-alert
-                alert(`Cannot upload a file larger than ${FILE_BYTE_LIMIT} bytes`);
+                alert(`Cannot upload a file larger than ${byteLimit} bytes`);
                 return;
             }
             const fileType = file.type;

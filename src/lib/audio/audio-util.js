@@ -111,5 +111,6 @@ export {
     computeChunkedRMS,
     encodeAndAddSoundToVM,
     downsampleIfNeeded,
-    dropEveryOtherSample
+    dropEveryOtherSample,
+    SOUND_BYTE_LIMIT
 };
