@@ -2,9 +2,31 @@ import {BitmapAdapter} from 'scratch-svg-renderer';
 import log from './log.js';
 import randomizeSpritePosition from './randomize-sprite-position.js';
 import gifDecoder from './gif-decoder';
-import {SOUND_BYTE_LIMIT} from "./audio/audio-util";
+import {SOUND_BYTE_LIMIT} from './audio/audio-util';
 
-const FILE_BYTE_LIMIT = SOUND_BYTE_LIMIT;
+const IMAGE_BYTE_LIMIT = 3 * 1000 * 1000; // 3mb
+
+const checkFileTooLarge = function (byteLength, fileType){
+    const audioAlert = `Cannot upload an audio file larger than ${SOUND_BYTE_LIMIT} bytes`;
+    const imageAlert = `Cannot upload an image file larger than ${IMAGE_BYTE_LIMIT} bytes`;
+    const defaultAlert = `Cannot upload a ${fileType} file larger than ${IMAGE_BYTE_LIMIT} bytes`;
+    switch (fileType) {
+    case 'audio/mp3':
+    case 'audio/mpeg':
+    case 'audio/wav':
+    case 'audio/wave':
+    case 'audio/x-wav':
+    case 'audio/x-pn-wav': {
+        return byteLength > SOUND_BYTE_LIMIT ? audioAlert : null;
+    }
+    case 'image/png':
+    case 'image/svg':
+        return byteLength > IMAGE_BYTE_LIMIT ? imageAlert : null;
+    default:
+        return byteLength > IMAGE_BYTE_LIMIT ? defaultAlert : null;
+    }
+};
+
 
 /**
  * Extract the file name given a string of the form fileName + ext
@@ -37,11 +59,12 @@ const handleFileUpload = function (fileInput, onload, onerror) {
         const file = files[i];
         const reader = new FileReader();
         reader.onload = () => {
-            if (reader.result.byteLength > FILE_BYTE_LIMIT){
+            const tooLarge = checkFileTooLarge(reader.result.byteLength, file.type);
+            if (tooLarge !== null){
                 onerror();
-                log.error(`Refusing to upload file larger than ${FILE_BYTE_LIMIT} bytes`);
+                log.error(tooLarge);
                 // eslint-disable-next-line no-alert
-                alert(`Cannot upload a file larger than ${FILE_BYTE_LIMIT} bytes`);
+                alert(tooLarge);
                 return;
             }
             const fileType = file.type;

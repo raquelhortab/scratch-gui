@@ -39,9 +39,6 @@ import cloudManagerHOC from '../lib/cloud-manager-hoc.jsx';
 import GUIComponent from '../components/gui/gui.jsx';
 import {setIsScratchDesktop} from '../lib/isScratchDesktop.js';
 
-const sb3 = require('../../node_modules/scratch-vm/src/serialization/sb3.js');
-const scratchParser = require('../../node_modules/scratch-parser/index.js');
-
 class GUI extends React.Component {
     componentDidMount () {
         setIsScratchDesktop(this.props.isScratchDesktop);
@@ -58,6 +55,7 @@ class GUI extends React.Component {
             this.props.onProjectLoaded();
         }
     }
+
     render () {
         if (this.props.isError) {
             throw new Error(
@@ -130,20 +128,31 @@ GUI.defaultProps = {
 
 const mapStateToProps = state => {
     const loadingState = state.scratchGui.projectState.loadingState;
-    window.onmessage = function (e){
-        console.log(e);
+    window.onmessage = (e) => {
         if (e.data === 'getSerializedScratchBlob') {
             state.scratchGui.vm.saveProjectSb3().then(content => {
                 const messageData = {
                     message: 'serializedScratchProject',
-                    blob: content,
-                    serialized: JSON.stringify(sb3.serialize(state.scratchGui.vm.runtime))
+                    blob: content
                 };
                 window.top.postMessage(messageData, '*');
             });
         }
-        if (e.data.message === 'loadScratchProject'){
-            state.scratchGui.vm.loadProject(JSON.parse(e.data.serialized));
+        if (e.data.message === 'loadScratchProject' && e.data.url){
+            state.scratchGui.projectState.loadingState = true;
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', e.data.url, true);
+            xhr.responseType = 'blob';
+            xhr.onload = function () {
+                const blob = xhr.response;
+                blob.arrayBuffer().then(buffer => {
+                    state.scratchGui.vm.loadProject(buffer).then ( () => {
+                        window.top.postMessage({message: 'projectLoaded'}, '*');
+                    });
+                });
+
+            };
+            xhr.send();
         }
     };
     return {
