@@ -38,6 +38,7 @@ import cloudManagerHOC from '../lib/cloud-manager-hoc.jsx';
 
 import GUIComponent from '../components/gui/gui.jsx';
 import {setIsScratchDesktop} from '../lib/isScratchDesktop.js';
+import sb3 from '../../node_modules/scratch-vm/src/serialization/sb3.js';
 
 class GUI extends React.Component {
     componentDidMount () {
@@ -130,10 +131,12 @@ const mapStateToProps = state => {
     const loadingState = state.scratchGui.projectState.loadingState;
     window.onmessage = (e) => {
         if (e.data === 'getSerializedScratchBlob') {
+            const blockCount = sb3.serialize(state.scratchGui.vm.runtime).targets.map(elem => Object.keys(elem.blocks).length).reduce((a, b) => a + b, 0);
             state.scratchGui.vm.saveProjectSb3().then(content => {
                 const messageData = {
                     message: 'serializedScratchProject',
-                    blob: content
+                    blob: content,
+                    blockCount: blockCount
                 };
                 window.top.postMessage(messageData, '*');
             });
