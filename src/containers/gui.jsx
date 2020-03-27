@@ -158,6 +158,10 @@ const mapStateToProps = state => {
 
             };
             xhr.send();
+            if (e.data.isPlayerOnly){
+                state.scratchGui.mode.isPlayerOnly = true;
+                state.scratchGui.mode.isFullScreen = true;
+            }
         }
     };
     return {
