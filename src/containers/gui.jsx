@@ -147,11 +147,14 @@ const mapStateToProps = state => {
             xhr.responseType = 'blob';
             xhr.onload = function () {
                 const blob = xhr.response;
-                blob.arrayBuffer().then(buffer => {
-                    state.scratchGui.vm.loadProject(buffer).then ( () => {
+                let fileReader = new FileReader();
+                fileReader.onload = function() {
+                    const buffer = fileReader.result;
+                    state.scratchGui.vm.loadProject(buffer).then(() => {
                         window.top.postMessage({message: 'projectLoaded'}, '*');
                     });
-                });
+                };
+                fileReader.readAsArrayBuffer(blob);
 
             };
             xhr.send();
