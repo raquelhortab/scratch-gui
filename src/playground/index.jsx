@@ -15,7 +15,7 @@ import supportedBrowser from '../lib/supported-browser';
 import styles from './index.css';
 
 // Register "base" page view
-analytics.pageview('/');
+// analytics.pageview('/');
 
 const appTarget = document.createElement('div');
 appTarget.className = styles.app;
