@@ -142,7 +142,6 @@ const mapStateToProps = state => {
             });
         }
         if (e.data.message === 'loadScratchProject' && e.data.url){
-            state.scratchGui.projectState.loadingState = true;
             const xhr = new XMLHttpRequest();
             xhr.open('GET', e.data.url, true);
             xhr.responseType = 'blob';
