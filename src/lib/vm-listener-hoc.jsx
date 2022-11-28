@@ -77,6 +77,7 @@ const vmListenerHOC = function (WrappedComponent) {
             if (this.props.shouldUpdateProjectChanged && !this.props.projectChanged) {
                 this.props.onProjectChanged();
             }
+            window.top.postMessage({message: 'projectChanged'}, '*');
         }
         handleTargetsUpdate (data) {
             if (this.props.shouldUpdateTargets) {
