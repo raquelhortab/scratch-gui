@@ -153,7 +153,7 @@ const mapStateToProps = state => {
                     const buffer = fileReader.result;
                     state.scratchGui.vm.loadProject(buffer).then(() => {
                         window.top.postMessage({message: 'projectLoaded'}, '*');
-                    });
+                    }).catch((err) => { window.top.postMessage({message: 'projectLoadError'}, '*') });
                 };
                 fileReader.readAsArrayBuffer(blob);
 
